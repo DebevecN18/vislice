@@ -7,7 +7,7 @@ ZMAGA = 'w'
 PORAZ = 'x'
 
 class Igra:
-    def __init__(self, geslo, crke:
+    def __init__(self, geslo, crke):
         self.geslo = geslo
         self.crke = crke
 
@@ -59,5 +59,62 @@ class Igra:
         return niz
 
 
-    def ugibaj(crka):
-        
+    def ugibaj(self, crka):
+        crka = crka.upper
+        if crka in self.crke:
+            return PONOVLJENA_CRKA
+        elif crka not in self.geslo:
+            if self.poraz():
+                return PORAZ
+            else:
+                return NAPACNA_CRKA
+        else:
+            if self.zmaga():
+                return ZMAGA
+            else:
+                return PRAVILNA_CRKA
+
+bazen_besed = []
+with open('besede.txt', 'r', encoding = 'utf - 8') as d:
+    for vrstica in d:
+        bazen_besed.append(vrstica.upper().strip)
+
+def nova_igra():
+    return Igra(random.choice(bazen_besed))
+
+#dokoncaj spletni vmesnik:
+
+ZACETEK = 's'
+class Vislice:
+    def __init__(self):
+        self.igre = {}
+
+    def prost_id_igre(self):
+        if len(self.igre) == 0:
+            return 0
+        else:
+            return max(self.igra.keys()) + 1
+
+    def nova_igra(self):
+        id_igre = self.prost_id_igre()
+        igra = nova_igra()
+        self.igre[id_igre] = (igra, ZACETEK)
+        return id_igre
+
+    def ugibaj(self, id_igre, crka):
+        igra = self.igre[id_igre][0]
+        poskus = igra.ugibaj(crka)
+        self.igre[id_igre] = (igra, poskus)
+
+#spletni vmesnik:
+import bottle
+import model
+
+
+vislice = model.Vislice()
+
+@bottle.get('/')
+def index():
+    return bottle.template('index.tpl')
+
+bottle.run(reloader=True, debug=True)
